@@ -22,7 +22,7 @@
     "last9"
   ],
   "author": "Last9 Inc.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
