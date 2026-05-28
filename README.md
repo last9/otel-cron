@@ -20,10 +20,59 @@ Uses the global OTel API — configure your providers as you normally would and 
 ## Installation
 
 ```bash
-npm install @last9/otel-cron
+npm install @last9/otel-cron @opentelemetry/sdk-node @opentelemetry/exporter-trace-otlp-http @opentelemetry/exporter-metrics-otlp-http
 ```
 
 Peer dependency: `@opentelemetry/api ^1.9.0`.
+
+## Configuration
+
+Set these environment variables before starting your process. Never hardcode them — use `.env` files locally and your secrets manager in production.
+
+```bash
+# Where to send telemetry
+OTEL_EXPORTER_OTLP_ENDPOINT=https://your-collector:4318
+
+# Auth header — keep this out of source control
+OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer your-token-here"
+
+# Identifies your service in traces and metrics
+OTEL_SERVICE_NAME=my-app
+```
+
+Bootstrap the SDK once at process startup, before any `withCronJob` calls:
+
+```typescript
+// instrumentation.ts
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+
+const sdk = new NodeSDK({
+  traceExporter: new OTLPTraceExporter(),      // reads OTEL_EXPORTER_OTLP_ENDPOINT + HEADERS
+  metricReader: new PeriodicExportingMetricReader({
+    exporter: new OTLPMetricExporter(),         // same env vars
+    exportIntervalMillis: 60_000,
+  }),
+});
+
+sdk.start();
+```
+
+Run it with `--require` so it loads before your application code:
+
+```bash
+node --require ./instrumentation.js your-cron-runner.js
+```
+
+Or with `tsx` / `ts-node`:
+
+```bash
+node --require tsx/cjs --require ./instrumentation.ts your-cron-runner.ts
+```
+
+The OTLP exporters read `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS` automatically — no URL or auth token in code.
 
 ## Missed-run alerting
 
