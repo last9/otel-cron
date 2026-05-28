@@ -7,20 +7,19 @@ on:
 
 jobs:
   release:
-    name: GitHub Release & npm publish
+    name: GitHub Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # create GitHub release
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # full history for changelog generation
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-          registry-url: https://registry.npmjs.org
 
       - run: npm ci
       - run: npm test
@@ -34,8 +33,3 @@ jobs:
             --verify-tag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to npm
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
