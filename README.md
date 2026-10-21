@@ -25,7 +25,7 @@ npm install @last9/otel-cron @opentelemetry/sdk-node @opentelemetry/exporter-tra
 
 Peer dependency: `@opentelemetry/api ^1.9.0`.
 
-Requires Node.js 22 or later (a supported release line). The OTLP/HTTPS exporters validate TLS with your process's Node.js, so keep it on the latest patch release of its line.
+Requires Node.js v22.23.4+, v24.22.1+ or v26.12.1+. The OTLP/HTTPS exporters validate TLS with your process's Node.js, and these are the first releases on each line that reject certificate chains through the compromised eMudhra intermediates ([nodejs/node#66871](https://github.com/nodejs/node/pull/66871)). Keep your runtime on the latest patch release of its line.
 
 ## Configuration
 
