@@ -26,4 +26,14 @@ describe('supported Node.js versions', () => {
       expect(readme).toContain(`v${version}`);
     }
   });
+
+  it('tests every patched floor in CI', () => {
+    const matrix = read('.github/workflows/ci.yml').match(/^\s*node: \[(.*)\]$/m);
+    expect(matrix?.[1].split(/,\s*/)).toEqual(PATCHED_NODE.map((v) => `'${v}'`));
+  });
+
+  it('releases on a Node version CI tests', () => {
+    const versions = read('.github/workflows/release.yml').match(/node-version: (.*)$/gm);
+    expect(versions).toEqual([`node-version: '${PATCHED_NODE[1]}'`]);
+  });
 });
