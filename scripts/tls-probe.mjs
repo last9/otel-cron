@@ -5,15 +5,27 @@ import https from 'node:https';
 
 const BLOCKED = 'https://dv-g3b-emudhra.we-have-a-problem.com/';
 const TRUSTED = 'https://nodejs.org/';
+// Overall per-request deadline, so a host that accepts the connection and then
+// goes silent fails the probe instead of holding the CI/release job open.
+const DEADLINE_MS = 15_000;
 
 function get(url) {
   return new Promise((resolve) => {
-    https
+    const req = https
       .get(url, (res) => {
+        clearTimeout(deadline);
         res.resume();
         resolve({ status: res.statusCode });
       })
-      .on('error', (err) => resolve({ code: err.code, message: err.message }));
+      .on('error', (err) => {
+        clearTimeout(deadline);
+        resolve({ code: err.code, message: err.message });
+      });
+    const deadline = setTimeout(() => {
+      req.destroy(
+        Object.assign(new Error(`no response within ${DEADLINE_MS} ms`), { code: 'ETIMEDOUT' }),
+      );
+    }, DEADLINE_MS);
   });
 }
 
