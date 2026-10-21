@@ -25,6 +25,8 @@ npm install @last9/otel-cron @opentelemetry/sdk-node @opentelemetry/exporter-tra
 
 Peer dependency: `@opentelemetry/api ^1.9.0`.
 
+Requires Node.js 22 or later (a supported release line). The OTLP/HTTPS exporters validate TLS with your process's Node.js, so keep it on the latest patch release of its line.
+
 ## Configuration
 
 Set these environment variables before starting your process. Never hardcode them — use `.env` files locally and your secrets manager in production.
