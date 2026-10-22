@@ -18,10 +18,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
-          check-latest: true
+          node-version: '24.22.1'
           cache: npm
 
+      - name: TLS probe (eMudhra chain rejected, trusted host accepted)
+        run: node scripts/tls-probe.mjs
       - run: npm ci
       - run: npm test
       - run: npm run build
